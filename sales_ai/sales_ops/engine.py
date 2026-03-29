@@ -49,8 +49,8 @@ class RevenueOpsAgent:
 
     def _personalized_outreach(self, account: Account) -> list[str]:
         contact = account.contacts[0]
-        pain = account.pain_points[0]
-        signal = account.buying_signals[0]
+        pain = account.pain_points[0] if account.pain_points else "revenue workflow gaps"
+        signal = account.buying_signals[0] if account.buying_signals else "recent commercial change"
         return [
             f"Email 1: Mention {signal} and tie our platform to fixing {pain} for {account.industry} teams.",
             f"Email 2: Share a benchmark on cycle time reduction for {account.size.lower()} revenue teams and invite {contact.name} to a 20-minute workflow review.",
@@ -58,10 +58,34 @@ class RevenueOpsAgent:
         ]
 
     def _get_account(self, account_name: str) -> Account | None:
-        return next((account for account in self.accounts if account.name.lower() == account_name.lower()), None)
+        needle = account_name.lower()
+        return next(
+            (
+                account
+                for account in self.accounts
+                if account.name.lower() == needle or (account.external_id and account.external_id.lower() == needle)
+            ),
+            None,
+        )
 
     def _get_deal(self, account_name: str) -> Deal | None:
-        return next((deal for deal in self.deals if deal.account_name.lower() == account_name.lower()), None)
+        needle = account_name.lower()
+        return next(
+            (
+                deal
+                for deal in self.deals
+                if deal.account_name.lower() == needle or (deal.account_ref and deal.account_ref.lower() == needle)
+            ),
+            None,
+        )
+
+    def _account_lookup(self) -> dict[str, Account]:
+        lookup: dict[str, Account] = {}
+        for account in self.accounts:
+            lookup[account.name.lower()] = account
+            if account.external_id:
+                lookup[account.external_id.lower()] = account
+        return lookup
 
     def get_prospecting_briefs(self) -> list[dict]:
         briefs = []
@@ -92,9 +116,11 @@ class RevenueOpsAgent:
 
     def _recovery_play(self, deal: Deal, account: Account, risk_score: int) -> dict:
         contact = account.contacts[0]
+        primary_pain = account.pain_points[0] if account.pain_points else "current revenue workflow gaps"
+        stakeholder_slice = ", ".join(deal.stakeholders[:3]) if deal.stakeholders else "the active buying team"
         talking_points = [
-            f"Reconnect the value case to {account.pain_points[0]} with quantified impact.",
-            f"Use the next meeting to validate stakeholder alignment across {', '.join(deal.stakeholders[:3])}.",
+            f"Reconnect the value case to {primary_pain} with quantified impact.",
+            f"Use the next meeting to validate stakeholder alignment across {stakeholder_slice}.",
         ]
 
         if account.engagement.competitor_mentions:
@@ -111,14 +137,16 @@ class RevenueOpsAgent:
 
     def get_deal_intelligence(self) -> list[dict]:
         results = []
-        account_map = {account.name: account for account in self.accounts}
+        account_map = self._account_lookup()
 
         for deal in self.deals:
-            account = account_map[deal.account_name]
+            account = account_map.get((deal.account_ref or deal.account_name).lower())
+            if not account:
+                continue
             risk_score = self._deal_risk_score(deal, account)
             results.append(
                 {
-                    "account": deal.account_name,
+                    "account": account.name,
                     "stage": deal.stage,
                     "value_usd": deal.value_usd,
                     "risk_score": risk_score,

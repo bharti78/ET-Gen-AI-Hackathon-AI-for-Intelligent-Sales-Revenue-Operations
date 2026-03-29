@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
 
 from sales_ops.engine import RevenueOpsAgent
+from sales_ops.importer import CSVImportError
 
 
 def create_app() -> Flask:
@@ -49,10 +50,14 @@ def create_app() -> Flask:
         if not accounts_file or not deals_file:
             return jsonify({"error": "Both accounts_csv and deals_csv are required"}), 400
 
-        result = agent.import_crm_data(
-            accounts_file.read().decode("utf-8"),
-            deals_file.read().decode("utf-8"),
-        )
+        try:
+            result = agent.import_crm_data(
+                accounts_file.read().decode("utf-8-sig"),
+                deals_file.read().decode("utf-8-sig"),
+            )
+        except CSVImportError as exc:
+            return jsonify({"error": str(exc)}), 400
+
         return jsonify(
             {
                 "message": "CRM data imported successfully",

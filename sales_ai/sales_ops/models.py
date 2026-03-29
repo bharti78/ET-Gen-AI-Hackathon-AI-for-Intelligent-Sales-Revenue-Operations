@@ -36,6 +36,7 @@ class Account:
     buying_signals: List[str]
     contacts: List[Contact]
     engagement: EngagementSignals
+    external_id: str = ""
 
 
 @dataclass
@@ -47,4 +48,5 @@ class Deal:
     days_in_stage: int
     next_step: str
     stakeholders: List[str]
+    account_ref: str = ""
     notes: List[str] = field(default_factory=list)

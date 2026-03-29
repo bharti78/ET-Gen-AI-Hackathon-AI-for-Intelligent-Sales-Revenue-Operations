@@ -277,7 +277,10 @@
                 return;
             }
 
-            importStatus.textContent = `Imported ${data.accounts_imported} accounts and ${data.deals_imported} deals. Refresh the page to view the new dashboard snapshot.`;
+            importStatus.textContent = `Imported ${data.accounts_imported} accounts and ${data.deals_imported} deals. Reloading dashboard...`;
+            window.setTimeout(() => {
+                window.location.reload();
+            }, 700);
         });
     </script>
 </body>
