@@ -21,6 +21,7 @@ body {
     margin: 0;
     font-family: "Trebuchet MS", "Segoe UI", sans-serif;
     color: var(--ink);
+    scroll-behavior: smooth;
     background:
         radial-gradient(circle at top left, rgba(243, 109, 58, 0.2), transparent 28%),
         radial-gradient(circle at 82% 12%, rgba(242, 177, 101, 0.12), transparent 24%),
@@ -79,13 +80,25 @@ body {
     gap: 10px;
 }
 
-.masthead-strip span {
+.masthead-strip a {
     padding: 8px 12px;
     border-radius: 999px;
     border: 1px solid var(--line);
     background: rgba(255, 255, 255, 0.04);
     color: var(--muted);
     font-size: 0.84rem;
+    text-decoration: none;
+    transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.masthead-strip a:hover {
+    background: rgba(243, 109, 58, 0.14);
+    color: #ffd4bf;
+    transform: translateY(-1px);
+}
+
+.section-card {
+    scroll-margin-top: 24px;
 }
 
 .hero-shell {
