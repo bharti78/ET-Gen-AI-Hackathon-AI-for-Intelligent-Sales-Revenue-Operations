@@ -1,0 +1,137 @@
+from sales_ops.models import Account, Contact, Deal, EngagementSignals
+
+
+def load_accounts() -> list[Account]:
+    return [
+        Account(
+            name="Northstar Retail",
+            industry="Retail",
+            size="Mid-market",
+            region="North America",
+            annual_revenue_m=180,
+            tech_stack=["Salesforce", "HubSpot", "Snowflake"],
+            pain_points=["slow lead routing", "poor forecast visibility", "manual renewals"],
+            buying_signals=["hiring RevOps manager", "expanding inside sales team"],
+            contacts=[
+                Contact("Ava Patel", "VP Sales", "ava@northstar.com", "champion"),
+                Contact("Leo Carter", "RevOps Lead", "leo@northstar.com", "economic buyer"),
+            ],
+            engagement=EngagementSignals(
+                last_reply_days_ago=2,
+                email_open_rate=0.71,
+                meeting_attendance_rate=1.0,
+                competitor_mentions=0,
+                champion_changed=False,
+                product_usage_score=0.0,
+                support_tickets_open=0,
+                sentiment_score=0.62,
+            ),
+        ),
+        Account(
+            name="Helio Health Systems",
+            industry="Healthcare",
+            size="Enterprise",
+            region="EMEA",
+            annual_revenue_m=900,
+            tech_stack=["Dynamics 365", "Marketo", "Power BI"],
+            pain_points=["fragmented account planning", "stalled enterprise deals"],
+            buying_signals=["new CRO joined", "CRM migration announced"],
+            contacts=[
+                Contact("Mina Joseph", "Chief Revenue Officer", "mina@helio.com", "economic buyer"),
+                Contact("Ryan Bell", "Director of Sales Enablement", "ryan@helio.com", "champion"),
+            ],
+            engagement=EngagementSignals(
+                last_reply_days_ago=9,
+                email_open_rate=0.48,
+                meeting_attendance_rate=0.5,
+                competitor_mentions=2,
+                champion_changed=True,
+                product_usage_score=0.0,
+                support_tickets_open=0,
+                sentiment_score=0.08,
+            ),
+        ),
+        Account(
+            name="BrightPath Logistics",
+            industry="Logistics",
+            size="SMB",
+            region="APAC",
+            annual_revenue_m=55,
+            tech_stack=["Pipedrive", "Slack", "BigQuery"],
+            pain_points=["low rep productivity", "renewal leakage", "no churn forecasting"],
+            buying_signals=["series B funding", "territory expansion"],
+            contacts=[
+                Contact("Nina Kim", "Head of Revenue", "nina@brightpath.com", "champion"),
+                Contact("Owen Reed", "CEO", "owen@brightpath.com", "executive sponsor"),
+            ],
+            engagement=EngagementSignals(
+                last_reply_days_ago=4,
+                email_open_rate=0.67,
+                meeting_attendance_rate=0.9,
+                competitor_mentions=1,
+                champion_changed=False,
+                product_usage_score=0.39,
+                support_tickets_open=4,
+                sentiment_score=-0.31,
+            ),
+        ),
+        Account(
+            name="SummitOne Finance",
+            industry="Fintech",
+            size="Enterprise",
+            region="North America",
+            annual_revenue_m=420,
+            tech_stack=["Salesforce", "Outreach", "Looker"],
+            pain_points=["forecast misses", "late-stage slippage", "stakeholder misalignment"],
+            buying_signals=["board mandate for efficiency", "new sales methodology rollout"],
+            contacts=[
+                Contact("Jasmine Cole", "SVP Revenue", "jasmine@summitone.com", "economic buyer"),
+                Contact("Derek Lin", "Sales Director", "derek@summitone.com", "champion"),
+            ],
+            engagement=EngagementSignals(
+                last_reply_days_ago=12,
+                email_open_rate=0.31,
+                meeting_attendance_rate=0.33,
+                competitor_mentions=3,
+                champion_changed=True,
+                product_usage_score=0.22,
+                support_tickets_open=6,
+                sentiment_score=-0.42,
+            ),
+        ),
+    ]
+
+
+def load_deals() -> list[Deal]:
+    return [
+        Deal(
+            account_name="Northstar Retail",
+            stage="Discovery",
+            value_usd=45000,
+            close_probability=0.72,
+            days_in_stage=11,
+            next_step="Share ROI simulation and book solution workshop",
+            stakeholders=["VP Sales", "RevOps Lead"],
+            notes=["strong urgency around manual lead routing", "asked for benchmark metrics"],
+        ),
+        Deal(
+            account_name="Helio Health Systems",
+            stage="Proposal",
+            value_usd=180000,
+            close_probability=0.41,
+            days_in_stage=29,
+            next_step="Rebuild executive alignment and address security objections",
+            stakeholders=["CRO", "Sales Enablement Director", "IT Security"],
+            notes=["champion moved to a different business unit", "competitor mentioned in last call"],
+        ),
+        Deal(
+            account_name="SummitOne Finance",
+            stage="Negotiation",
+            value_usd=260000,
+            close_probability=0.36,
+            days_in_stage=34,
+            next_step="Recover sponsor confidence and tighten mutual action plan",
+            stakeholders=["SVP Revenue", "Procurement", "Sales Director"],
+            notes=["engagement dropped after pricing review", "legal review not started"],
+        ),
+    ]

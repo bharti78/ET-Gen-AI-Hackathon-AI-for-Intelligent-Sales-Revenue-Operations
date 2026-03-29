@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Revenue Ops AI Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <main class="page">
+        <section class="masthead">
+            <div class="brand-lockup">
+                <span class="brand-mark">R</span>
+                <div>
+                    <p class="brand-eyebrow">Revenue Ops AI</p>
+                    <strong class="brand-name">Signal Room</strong>
+                </div>
+            </div>
+            <div class="masthead-strip">
+                <span>Prospecting</span>
+                <span>Deal Recovery</span>
+                <span>Retention</span>
+                <span>Competitive Intel</span>
+            </div>
+        </section>
+
+        <section class="hero-shell">
+            <section class="hero card hero-card">
+                <div class="hero-copy">
+                    <p class="eyebrow">Revenue Operations Command Center</p>
+                    <h1>{{ overview.headline }}</h1>
+                    <p class="subcopy">A demo copilot that watches CRM signals, recommends next actions, and helps teams prevent pipeline leakage before it hits conversion, cycle time, or renewals.</p>
+                    <div class="hero-actions">
+                        <p class="status-pill">
+                            AI generation:
+                            {% if overview.ai_generation_enabled %}
+                            live via {{ overview.ai_model }}
+                            {% else %}
+                            fallback mode until a provider key is set
+                            {% endif %}
+                        </p>
+                        <p class="hero-note">Built for prospecting, deal rescue, retention, and competitive response in one workspace.</p>
+                    </div>
+                </div>
+                <div class="hero-side">
+                    <div class="signal-card">
+                        <span class="signal-label">Pipeline monitored</span>
+                        <strong>${{ "{:,}".format(overview.metrics.total_pipeline_usd) }}</strong>
+                        <span class="signal-trend">Live revenue map</span>
+                    </div>
+                    <div class="signal-card">
+                        <span class="signal-label">At-risk pipeline</span>
+                        <strong>${{ "{:,}".format(overview.metrics.at_risk_pipeline_usd) }}</strong>
+                        <span class="signal-trend">Needs intervention</span>
+                    </div>
+                    <div class="signal-card">
+                        <span class="signal-label">Active motions</span>
+                        <strong>{{ overview.metrics.active_deals }} deals</strong>
+                        <span class="signal-trend">Signals updating</span>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="metrics">
+            {% for label, value in overview.metrics.items() %}
+            <article class="card metric-card">
+                <span class="metric-glow"></span>
+                <span class="metric-label">{{ label.replace('_', ' ') }}</span>
+                <strong class="metric-value">
+                    {% if "usd" in label %}
+                    ${{ "{:,}".format(value) }}
+                    {% else %}
+                    {{ value }}
+                    {% endif %}
+                </strong>
+                <span class="metric-foot">
+                    {% if "risk" in label %}
+                    Live risk visibility across the revenue pipeline
+                    {% elif "fit" in label %}
+                    ICP fit and buyer intent scoring
+                    {% elif "accounts" in label %}
+                    CRM accounts being actively analyzed
+                    {% elif "deals" in label %}
+                    Opportunities tracked for movement and slippage
+                    {% else %}
+                    Real-time operating snapshot
+                    {% endif %}
+                </span>
+            </article>
+            {% endfor %}
+        </section>
+
+        <section class="workspace-grid">
+            <section class="card import-card">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">CRM Connection</p>
+                        <h2>Import Account And Deal Data</h2>
+                    </div>
+                    <span class="mini-badge">CSV-ready</span>
+                </div>
+                <p class="console-meta">Upload two CSV exports to refresh the dashboard with new accounts and deals.</p>
+                <form id="crm-import-form" class="import-form">
+                    <label class="file-field">
+                        <span>Accounts CSV</span>
+                        <input type="file" name="accounts_csv" accept=".csv" required>
+                    </label>
+                    <label class="file-field">
+                        <span>Deals CSV</span>
+                        <input type="file" name="deals_csv" accept=".csv" required>
+                    </label>
+                    <button type="submit" class="action-btn import-btn">Import CRM data</button>
+                </form>
+                <p id="import-status" class="console-meta">Sample files are available in the project `sample_data` folder.</p>
+            </section>
+
+            <section class="card console-card">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">AI Studio</p>
+                        <h2>Output Console</h2>
+                    </div>
+                    <span class="mini-badge">Actionable copy</span>
+                </div>
+                <p id="console-meta" class="console-meta">Click a prospect or deal action to generate tailored messaging.</p>
+                <pre id="ai-console" class="console-box">Awaiting generation...</pre>
+            </section>
+        </section>
+
+        <section class="grid">
+            <article class="card section-card">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">Prospecting Agent</p>
+                        <h2>Top Prospects</h2>
+                    </div>
+                    <span class="mini-badge">Prioritized</span>
+                </div>
+                {% for prospect in overview.top_prospects %}
+                <div class="item">
+                    <div class="item-header">
+                        <strong>{{ prospect.account }}</strong>
+                        <span class="score-pill">{{ prospect.fit_score }}/100</span>
+                    </div>
+                    <p class="item-meta">{{ prospect.industry }} | {{ prospect.engagement }} engagement</p>
+                    <p><strong>Signals:</strong> {{ prospect.buying_signals | join(', ') }}</p>
+                    <p><strong>Next outreach:</strong> {{ prospect.recommended_sequence[0] }}</p>
+                    <button class="action-btn" data-kind="outreach" data-account="{{ prospect.account }}">Generate AI outreach</button>
+                </div>
+                {% endfor %}
+            </article>
+
+            <article class="card section-card">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">Deal Intelligence</p>
+                        <h2>Deal Watchlist</h2>
+                    </div>
+                    <span class="mini-badge">High attention</span>
+                </div>
+                {% for deal in overview.deal_watchlist %}
+                <div class="item">
+                    <div class="item-header">
+                        <strong>{{ deal.account }}</strong>
+                        <span class="score-pill risk-pill">Risk {{ deal.risk_score }}</span>
+                    </div>
+                    <p class="item-meta">{{ deal.stage }} | ${{ "{:,}".format(deal.value_usd) }}</p>
+                    <p><strong>Next action:</strong> {{ deal.recovery_play.next_best_action }}</p>
+                    <p><strong>Talking point:</strong> {{ deal.recovery_play.talking_points[0] }}</p>
+                    <button class="action-btn" data-kind="recovery" data-account="{{ deal.account }}">Generate recovery plan</button>
+                </div>
+                {% endfor %}
+            </article>
+
+            <article class="card section-card">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">Retention Agent</p>
+                        <h2>Retention Alerts</h2>
+                    </div>
+                    <span class="mini-badge">Early warning</span>
+                </div>
+                {% for account in overview.retention_watchlist %}
+                <div class="item">
+                    <div class="item-header">
+                        <strong>{{ account.account }}</strong>
+                        <span class="score-pill risk-pill">Risk {{ account.retention_risk }}</span>
+                    </div>
+                    <p><strong>Usage:</strong> {{ account.health_signals.usage_score }}</p>
+                    <p><strong>Intervention:</strong> {{ account.intervention[0] }}</p>
+                </div>
+                {% endfor %}
+            </article>
+
+            <article class="card section-card">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">Competitive Agent</p>
+                        <h2>Competitive Intel</h2>
+                    </div>
+                    <span class="mini-badge">Battlecard push</span>
+                </div>
+                {% for brief in overview.competitive_briefs %}
+                <div class="item">
+                    <div class="item-header">
+                        <strong>{{ brief.account }}</strong>
+                        <span class="score-pill risk-pill">Risk {{ brief.risk_score }}</span>
+                    </div>
+                    <p><strong>Positioning:</strong> {{ brief.battlecard.positioning }}</p>
+                    <p><strong>Counter-message:</strong> {{ brief.battlecard.landmine_to_handle }}</p>
+                </div>
+                {% endfor %}
+            </article>
+        </section>
+
+        <section class="card summary-card">
+            <div class="section-head">
+                <div>
+                    <p class="section-kicker">Automation Layer</p>
+                    <h2>What The Agent Is Doing</h2>
+                </div>
+            </div>
+            <div class="summary-list">
+                {% for item in overview.automation_summary %}
+                <p class="summary-item">{{ item }}</p>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+    <script>
+        const consoleBox = document.getElementById("ai-console");
+        const consoleMeta = document.getElementById("console-meta");
+        const importForm = document.getElementById("crm-import-form");
+        const importStatus = document.getElementById("import-status");
+
+        async function runGeneration(kind, account) {
+            consoleMeta.textContent = `Generating ${kind} content for ${account}...`;
+            consoleBox.textContent = "Working...";
+
+            const response = await fetch(`/api/generate/${kind}/${encodeURIComponent(account)}`, {
+                method: "POST"
+            });
+            const data = await response.json();
+
+            if (data.error) {
+                consoleMeta.textContent = "Generation failed";
+                consoleBox.textContent = data.error;
+                return;
+            }
+
+            const modeLabel = data.mode === "fallback" ? "Fallback" : `${data.mode} (${data.model})`;
+            consoleMeta.textContent = `${account} | ${modeLabel}`;
+            consoleBox.textContent = data.content;
+        }
+
+        document.querySelectorAll(".action-btn").forEach((button) => {
+            if (button.dataset.kind) {
+                button.addEventListener("click", () => runGeneration(button.dataset.kind, button.dataset.account));
+            }
+        });
+
+        importForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formData = new FormData(importForm);
+
+            importStatus.textContent = "Importing CRM data...";
+
+            const response = await fetch("/api/import/crm", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                importStatus.textContent = data.error || "Import failed";
+                return;
+            }
+
+            importStatus.textContent = `Imported ${data.accounts_imported} accounts and ${data.deals_imported} deals. Refresh the page to view the new dashboard snapshot.`;
+        });
+    </script>
+</body>
+</html>
