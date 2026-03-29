@@ -6,7 +6,7 @@ from sales_ops.engine import RevenueOpsAgent
 
 def create_app() -> Flask:
     load_dotenv()
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder="public", static_url_path="")
     agent = RevenueOpsAgent()
 
     @app.route("/")
@@ -62,3 +62,6 @@ def create_app() -> Flask:
         )
 
     return app
+
+
+app = create_app()
